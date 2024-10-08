@@ -1,0 +1,65 @@
+'use client';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ErrorData } from '@/types/data';
+import { SquarePenIcon, XIcon } from 'lucide-react';
+
+interface Props {
+  errorData: ErrorData;
+}
+
+export default function EditButton({ errorData }: Props) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size={'icon'}>
+          <SquarePenIcon className="size-6 text-muted" />
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent className="bg-background-medium p-0">
+        <AlertDialogHeader className="bg-background p-6">
+          <AlertDialogTitle className="flex items-center gap-10 font-normal">
+            <span>{errorData.data}</span>
+            <span>{errorData.pedidoId}</span>
+            <span className="flex-1 text-center">{errorData.erro}</span>
+            <AlertDialogCancel className="!-mt-3 -mr-3 size-10 self-start border-none p-1">
+              <XIcon
+                className="size-5 cursor-pointer text-foreground"
+                strokeWidth={3}
+              />
+            </AlertDialogCancel>
+          </AlertDialogTitle>
+        </AlertDialogHeader>
+
+        <div className="space-y-6 p-6">
+          <Textarea
+            placeholder="Escrever observação..."
+            rows={5}
+            className="bg-background-light text-xl text-foreground placeholder:text-foreground/80"
+          />
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="px-7 py-3 text-xl">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction className="px-7 py-3 text-xl">
+              Enviar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}

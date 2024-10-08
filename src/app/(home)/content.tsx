@@ -1,6 +1,7 @@
 'use client';
 
 import { getOCCErrors } from '@/actions/error';
+import EditButton from '@/app/(home)/_components/edit-button';
 import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { ErrorData } from '@/types/data';
 import { useQuery } from '@tanstack/react-query';
 import copy from 'clipboard-copy';
-import { CopyIcon, SearchIcon, SquarePenIcon } from 'lucide-react';
+import { CopyIcon, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
@@ -133,24 +134,23 @@ export default function Home() {
             <TableBody>
               {query.data.map((item: ErrorData) => (
                 <TableRow key={item.pedidoId}>
-                  <TableCell>{item.data}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
+                  <TableCell align="center">{item.data}</TableCell>
+                  <TableCell align="center">
+                    <div className="flex items-center gap-1">
                       <span className="min-w-24">{item.pedidoId}</span>
                       <Button
                         variant={'ghost'}
                         className="size-8 p-1"
                         onClick={() => handleCopyToClipboard(item.pedidoId)}
+                        title="Copiar id pedido"
                       >
                         <CopyIcon className="size-4 text-muted-foreground" />
                       </Button>
                     </div>
                   </TableCell>
                   <TableCell>{item.erro}</TableCell>
-                  <TableCell>
-                    <Button size={'icon'}>
-                      <SquarePenIcon className="size-6 text-muted" />
-                    </Button>
+                  <TableCell align="center">
+                    <EditButton errorData={item} />
                   </TableCell>
                 </TableRow>
               ))}
