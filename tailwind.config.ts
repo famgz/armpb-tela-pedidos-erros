@@ -12,7 +12,11 @@ const config: Config = {
     extend: {
       container: { center: true },
       colors: {
-        background: 'hsl(var(--background))',
+        background: {
+          DEFAULT: 'hsl(var(--background))',
+          medium: 'hsl(var(--background-medium))',
+          light: 'hsl(var(--background-light))',
+        },
         foreground: 'hsl(var(--foreground))',
         card: {
           DEFAULT: 'hsl(var(--card))',

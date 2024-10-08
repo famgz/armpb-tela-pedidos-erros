@@ -24,9 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${montserrat.className} antialiased`}>
         <Providers>
-          <div className="flex min-h-screen flex-col p-5">
+          <div className="flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex flex-1 p-5">{children}</main>
           </div>
         </Providers>
       </body>
