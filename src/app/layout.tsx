@@ -4,6 +4,7 @@ import { Montserrat } from 'next/font/google';
 import React from 'react';
 import Providers from '@/app/providers';
 import Header from '@/components/header';
+import { Toaster } from '@/components/ui/sonner';
 
 const montserrat = Montserrat({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
@@ -29,6 +30,7 @@ export default function RootLayout({
             <main className="flex flex-1 p-5">{children}</main>
           </div>
         </Providers>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

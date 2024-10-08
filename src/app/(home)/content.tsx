@@ -26,6 +26,7 @@ import { useQuery } from '@tanstack/react-query';
 import copy from 'clipboard-copy';
 import { CopyIcon, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
 const filterOptions = ['pedido', 'data'];
@@ -46,6 +47,12 @@ export default function Home() {
   async function handleCopyToClipboard(text: string) {
     try {
       await copy(text);
+      toast.success(`Pedido ${text} copiado`, {
+        classNames: {
+          title: 'font-normal text-foreground',
+          toast: 'bg-background-medium',
+        },
+      });
     } catch (error) {
       console.error('Failed to copy text to clipboard', error);
     }
