@@ -24,7 +24,7 @@ export default function EditButton({ errorData }: Props) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button size={'icon'}>
+        <Button size={'icon'} className="size-10">
           <SquarePenIcon className="size-6 text-muted" />
         </Button>
       </AlertDialogTrigger>
