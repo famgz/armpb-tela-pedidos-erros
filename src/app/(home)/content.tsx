@@ -34,7 +34,7 @@ import {
   CopyIcon,
   SearchIcon,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
 const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
@@ -57,7 +57,7 @@ export default function Home() {
     // refetchInterval: 60000,
   });
 
-  const handleFilterItems = useCallback(() => {
+  function handleFilterItems() {
     if (!query.data) return;
     const trimmedSearch = search.trim();
     setItems(
@@ -67,7 +67,7 @@ export default function Home() {
           )
         : query.data,
     );
-  }, [query.data, search, currentFilterOption]);
+  }
 
   function handleClearSearch() {
     if (search) {
@@ -127,7 +127,8 @@ export default function Home() {
     if (query.data) {
       handleFilterItems();
     }
-  }, [query.data, handleFilterItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.data]);
 
   return (
     <div className="container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl bg-background-medium">
