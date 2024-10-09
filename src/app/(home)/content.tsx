@@ -20,52 +20,117 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { cn, handleCopyToClipboard } from '@/lib/utils';
+import {
+  cn,
+  convertOrderIdToNumber,
+  handleCopyToClipboard,
+  reverseStringDate,
+} from '@/lib/utils';
 import { ErrorData, ErrorDataKey } from '@/types/data';
 import { useQuery } from '@tanstack/react-query';
-import { CopyIcon, SearchIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CopyIcon,
+  SearchIcon,
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
 const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
+
+type SortDirType = 'asc' | 'desc';
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState(tabs[0]);
   const [currentFilterOption, setCurrentFilterOption] = useState(
     filterOptions[0],
   );
+  const [sort, setSort] = useState<ErrorDataKey | undefined>();
+  const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<ErrorData[]>([]);
 
   const query = useQuery({
-    queryKey: ['dataKey'],
+    queryKey: ['occ-errors'],
     queryFn: getOCCErrors,
-    refetchInterval: 60000,
+    // refetchInterval: 60000,
   });
 
-  useEffect(() => {
-    if (query.data) {
+  const handleFilterItems = useCallback(() => {
+    if (!query.data) return;
+    const trimmedSearch = search.trim();
+    setItems(
+      trimmedSearch
+        ? query.data.filter(
+            (item: ErrorData) => item[currentFilterOption] === trimmedSearch,
+          )
+        : query.data,
+    );
+  }, [query.data, search, currentFilterOption]);
+
+  function handleClearSearch() {
+    if (search) {
+      setSearch('');
       setItems(query.data);
     }
-  }, [query.data]);
+  }
 
-  function handleFilterItems() {
-    const trimmedSearch = search.trim();
-    if (!(trimmedSearch && query.data)) return;
-    setItems(
-      query.data.filter(
-        (item: ErrorData) => item[currentFilterOption] === trimmedSearch,
-      ),
+  function getReverseSortDir(): SortDirType {
+    return sortDir === 'asc' ? 'desc' : 'asc';
+  }
+
+  function handleSortItems(sortType: ErrorDataKey) {
+    if (!query.data) return;
+
+    let newSortDir: SortDirType = 'asc';
+
+    setSort(sortType);
+
+    if (sortType === sort) {
+      newSortDir = getReverseSortDir();
+      setSortDir(newSortDir);
+    } else {
+      setSortDir(newSortDir);
+    }
+
+    setItems((prev) =>
+      prev.sort((_a, _b) => {
+        let a: string | number = _a[sortType!];
+        let b: string | number = _b[sortType!];
+        if (sortType === 'data') {
+          a = reverseStringDate(a);
+          b = reverseStringDate(b);
+          if (a < b) return newSortDir === 'asc' ? -1 : 1;
+          if (a > b) return newSortDir === 'asc' ? 1 : -1;
+          return 0;
+        } else {
+          a = convertOrderIdToNumber(a);
+          b = convertOrderIdToNumber(b);
+          return newSortDir === 'asc' ? a - b : b - a;
+        }
+      }),
     );
   }
 
-  function handleClearSearch() {
-    setSearch('');
-    setItems(query.data);
+  function getTableHeaderSortIcon(sortType: ErrorDataKey) {
+    if (sort !== sortType) return;
+    const Icon = sortDir === 'asc' ? ChevronUpIcon : ChevronDownIcon;
+    return (
+      <div className="absolute right-3 top-3">
+        <Icon className="size-4" strokeWidth={3} />
+      </div>
+    );
   }
 
+  useEffect(() => {
+    if (query.data) {
+      handleFilterItems();
+    }
+  }, [query.data, handleFilterItems]);
+
   return (
-    <div className="container flex-1 space-y-12 overflow-hidden rounded-2xl bg-background-medium">
+    <div className="container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
         {tabs.map((tab) => (
@@ -122,7 +187,11 @@ export default function Home() {
         </Select>
 
         {/* botão filtrar */}
-        <Button className="px-8 text-xl" onClick={handleFilterItems}>
+        <Button
+          className="px-8 text-xl"
+          onClick={handleFilterItems}
+          disabled={!query.data}
+        >
           Buscar
         </Button>
 
@@ -131,28 +200,37 @@ export default function Home() {
           className="px-8 text-xl"
           variant={'outline'}
           onClick={handleClearSearch}
+          disabled={!query.data}
         >
           Limpar
         </Button>
       </div>
 
       {/* table */}
-      <div className="flex flex-col gap-2">
+      <div className="relative flex flex-1 flex-col gap-2">
         {query.isLoading && <Loading />}
 
         {query.error instanceof Error && (
           <div>Error: {query.error.message}</div>
         )}
 
-        {items.length > 0 && (
-          <Table>
+        {query.data && (
+          <Table className="h-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center text-xl font-semibold text-foreground">
+                <TableHead
+                  className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                  onClick={() => handleSortItems('data')}
+                >
                   Data
+                  {getTableHeaderSortIcon('data')}
                 </TableHead>
-                <TableHead className="text-center text-xl font-semibold text-foreground">
+                <TableHead
+                  className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                  onClick={() => handleSortItems('pedidoId')}
+                >
                   Pedido
+                  {getTableHeaderSortIcon('pedidoId')}
                 </TableHead>
                 <TableHead className="text-center text-xl font-semibold text-foreground">
                   Descrição
@@ -163,7 +241,7 @@ export default function Home() {
               </TableRow>
             </TableHeader>
 
-            <TableBody>
+            <TableBody className="relative">
               {items.map((item: ErrorData, i: number) => (
                 <TableRow
                   key={item.pedidoId}
@@ -200,6 +278,11 @@ export default function Home() {
             </TableBody>
           </Table>
         )}
+        {/* {!query.isLoading && query.data && items.length === 0 && (
+          <div className="flex-center flex-1">
+            <p className="text-center text-xl">Nenhum item encontrado</p>
+          </div>
+        )} */}
       </div>
     </div>
   );

@@ -9,10 +9,10 @@ import {
 export default async function ErrorsHomePage() {
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ['occ-errors'],
-    queryFn: getOCCErrors,
-  });
+  // await queryClient.prefetchQuery({
+  //   queryKey: ['occ-errors'],
+  //   queryFn: getOCCErrors,
+  // });
 
   return (
     // Neat! Serialization is now as easy as passing props.

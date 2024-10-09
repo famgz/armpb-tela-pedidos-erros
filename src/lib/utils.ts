@@ -13,10 +13,17 @@ export async function handleCopyToClipboard(text: string) {
     toast.success(`Pedido ${text} copiado`, {
       classNames: {
         title: 'font-normal text-foreground',
-        toast: 'bg-background-medium',
       },
     });
   } catch (error) {
     console.error('Failed to copy text to clipboard', error);
   }
+}
+
+export function reverseStringDate(date: string) {
+  return date.split('/').reverse().join('/');
+}
+
+export function convertOrderIdToNumber(orderId: string) {
+  return Number(orderId.replace('o', ''));
 }
