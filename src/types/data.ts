@@ -3,3 +3,5 @@ export interface ErrorData {
   erro: string;
   pedidoId: string;
 }
+
+export type ErrorDataKey = keyof ErrorData;

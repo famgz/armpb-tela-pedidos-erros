@@ -20,42 +20,48 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
-import { ErrorData } from '@/types/data';
+import { cn, handleCopyToClipboard } from '@/lib/utils';
+import { ErrorData, ErrorDataKey } from '@/types/data';
 import { useQuery } from '@tanstack/react-query';
-import copy from 'clipboard-copy';
 import { CopyIcon, SearchIcon } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
-const filterOptions = ['pedido', 'data'];
+const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState(tabs[0]);
   const [currentFilterOption, setCurrentFilterOption] = useState(
     filterOptions[0],
   );
+  const [search, setSearch] = useState('');
+  const [items, setItems] = useState([]);
+
   const query = useQuery({
     queryKey: ['dataKey'],
     queryFn: getOCCErrors,
+    refetchInterval: 60000,
   });
 
-  if (query.error instanceof Error)
-    return <div>Error: {query.error.message}</div>;
-
-  async function handleCopyToClipboard(text: string) {
-    try {
-      await copy(text);
-      toast.success(`Pedido ${text} copiado`, {
-        classNames: {
-          title: 'font-normal text-foreground',
-          toast: 'bg-background-medium',
-        },
-      });
-    } catch (error) {
-      console.error('Failed to copy text to clipboard', error);
+  useEffect(() => {
+    if (query.data) {
+      setItems(query.data);
     }
+  }, [query.data]);
+
+  function handleFilterItems() {
+    const trimmedSearch = search.trim();
+    if (!(trimmedSearch && query.data)) return;
+    setItems(
+      query.data.filter(
+        (item: ErrorData) => item[currentFilterOption] === trimmedSearch,
+      ),
+    );
+  }
+
+  function handleClearSearch() {
+    setSearch('');
+    setItems(query.data);
   }
 
   return (
@@ -68,14 +74,13 @@ export default function Home() {
             className={cn(
               'rounded-t-2xl bg-background-medium p-4 text-center',
               {
-                'bg-background-light shadow-[10px_0_20px_rgba(0,0,0,0.25)]':
-                  tab !== currentTab,
+                'bg-background-light': tab !== currentTab,
               },
             )}
           >
             <p
               onClick={() => setCurrentTab(tab)}
-              className="cursor-pointer text-xl font-semibold hover:opacity-90"
+              className="cursor-pointer text-xl font-semibold hover:text-muted/80"
             >
               {tab}
             </p>
@@ -85,17 +90,21 @@ export default function Home() {
 
       {/* filters */}
       <div className="flex-center mx-auto max-w-[1200px] gap-4 p-4">
+        {/* campo de busca */}
         <div className="flex flex-1 items-center border-b border-muted-foreground">
           <SearchIcon className="size-5 text-muted-foreground" />
           <Input
             placeholder="Pesquisar por pedido"
             className="no-style text-lg"
+            value={search}
+            onChange={(ev) => setSearch(ev.target.value)}
           />
         </div>
 
+        {/* tipo de busca */}
         <Select
           value={currentFilterOption}
-          onValueChange={setCurrentFilterOption}
+          onValueChange={(value: ErrorDataKey) => setCurrentFilterOption(value)}
           defaultValue={currentFilterOption}
         >
           <SelectTrigger className="w-[220px]">
@@ -112,36 +121,61 @@ export default function Home() {
           </SelectContent>
         </Select>
 
-        <Button className="px-8 text-xl">Buscar</Button>
+        {/* botão filtrar */}
+        <Button className="px-8 text-xl" onClick={handleFilterItems}>
+          Buscar
+        </Button>
+
+        {/* botão resetar */}
+        <Button
+          className="px-8 text-xl"
+          variant={'outline'}
+          onClick={handleClearSearch}
+        >
+          Limpar
+        </Button>
       </div>
 
-      {/* error table */}
-      <div className="flex flex-col gap-2 p-4">
+      {/* table */}
+      <div className="flex flex-col gap-2">
         {query.isLoading && <Loading />}
 
-        {query.data && (
+        {query.error instanceof Error && (
+          <div>Error: {query.error.message}</div>
+        )}
+
+        {items.length > 0 && (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center text-xl font-bold text-foreground">
+                <TableHead className="text-center text-xl font-semibold text-foreground">
                   Data
                 </TableHead>
-                <TableHead className="text-center text-xl font-bold text-foreground">
+                <TableHead className="text-center text-xl font-semibold text-foreground">
                   Pedido
                 </TableHead>
-                <TableHead className="text-center text-xl font-bold text-foreground">
+                <TableHead className="text-center text-xl font-semibold text-foreground">
                   Descrição
                 </TableHead>
-                <TableHead className="text-center text-xl font-bold text-foreground">
+                <TableHead className="text-center text-xl font-semibold text-foreground">
                   Editar
                 </TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {query.data.map((item: ErrorData) => (
-                <TableRow key={item.pedidoId}>
-                  <TableCell align="center">{item.data}</TableCell>
+              {items.map((item: ErrorData, i: number) => (
+                <TableRow
+                  key={item.pedidoId}
+                  className={cn({
+                    'bg-background-light/40': i % 2 === 0,
+                  })}
+                >
+                  {/* data */}
+                  <TableCell align="center" className="px-8">
+                    {item.data}
+                  </TableCell>
+                  {/* pedido id */}
                   <TableCell align="center">
                     <div className="flex items-center gap-1">
                       <span className="min-w-24">{item.pedidoId}</span>
@@ -155,8 +189,10 @@ export default function Home() {
                       </Button>
                     </div>
                   </TableCell>
+                  {/* descrição */}
                   <TableCell>{item.erro}</TableCell>
-                  <TableCell align="center">
+                  {/* ações */}
+                  <TableCell align="center" className="px-8">
                     <EditButton errorData={item} />
                   </TableCell>
                 </TableRow>
