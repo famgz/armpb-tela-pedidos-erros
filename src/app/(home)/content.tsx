@@ -85,14 +85,14 @@ export default function Home() {
 
     let newSortDir: SortDirType = 'asc';
 
-    setSort(sortType);
-
     if (sortType === sort) {
       newSortDir = getReverseSortDir();
       setSortDir(newSortDir);
     } else {
       setSortDir(newSortDir);
     }
+
+    setSort(sortType);
 
     setItems((prev) =>
       prev.sort((_a, _b) => {
@@ -146,7 +146,7 @@ export default function Home() {
           >
             <p
               onClick={() => setCurrentTab(tab)}
-              className="cursor-pointer text-xl font-semibold hover:text-muted/80"
+              className="cursor-pointer text-xl font-semibold hover:text-white/70"
             >
               {tab}
             </p>
@@ -155,12 +155,12 @@ export default function Home() {
       </div>
 
       {/* filters */}
-      <div className="flex-center mx-auto max-w-[1200px] gap-4 p-4">
+      <div className="flex-center mx-auto w-full max-w-[1200px] gap-4 p-4">
         {/* campo de busca */}
         <div className="flex flex-1 items-center border-b border-muted-foreground">
           <SearchIcon className="size-5 text-muted-foreground" />
           <Input
-            placeholder="Pesquisar por pedido"
+            placeholder={`Pesquisar por ${currentFilterOption}`}
             className="no-style text-lg"
             value={search}
             onChange={(ev) => setSearch(ev.target.value)}
