@@ -5,6 +5,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -31,6 +32,9 @@ export default function EditButton({ errorData }: Props) {
       <AlertDialogContent className="bg-background-medium p-0">
         <AlertDialogHeader className="bg-background p-6">
           <AlertDialogTitle className="flex items-center gap-10 font-normal">
+            <AlertDialogDescription className="sr-only">
+              Modal para edição de obsevação de erro
+            </AlertDialogDescription>
             <span>{errorData.data}</span>
             <span>{errorData.pedidoId}</span>
             <span className="flex-1 text-center">{errorData.erro}</span>
@@ -50,11 +54,11 @@ export default function EditButton({ errorData }: Props) {
             className="bg-background-light text-xl text-foreground placeholder:text-foreground/80"
           />
 
-          <AlertDialogFooter>
-            <AlertDialogCancel className="px-7 py-3 text-xl">
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="px-10 py-3 text-xl">
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction className="px-7 py-3 text-xl">
+            <AlertDialogAction className="px-10 py-3 text-xl">
               Enviar
             </AlertDialogAction>
           </AlertDialogFooter>
