@@ -31,13 +31,15 @@ export default function EditButton({ errorData }: Props) {
 
       <AlertDialogContent className="bg-background-medium p-0">
         <AlertDialogHeader className="bg-background p-6">
-          <AlertDialogTitle className="flex items-center gap-10 font-normal">
+          <AlertDialogTitle className="flex items-start gap-10 font-normal">
             <AlertDialogDescription className="sr-only">
               Modal para edição de obsevação de erro
             </AlertDialogDescription>
             <span>{errorData.data}</span>
             <span>{errorData.pedidoId}</span>
-            <span className="flex-1 text-center">{errorData.erro}</span>
+            <span className="line-clamp-2 flex-1 text-center">
+              {errorData.erro}
+            </span>
             <AlertDialogCancel className="!-mt-3 -mr-3 size-10 self-start border-none p-1">
               <XIcon
                 className="size-5 cursor-pointer text-foreground"
