@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const useEndpoint = false;
+const useEndpoint = true;
 
 const endpoint = 'http://site-vw.ncl.intranet/orders-voa/api/errors';
 
