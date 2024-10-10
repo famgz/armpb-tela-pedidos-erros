@@ -34,7 +34,7 @@ import {
   CopyIcon,
   SearchIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const tabs = ['Protheus', 'OCC', 'Histórico'];
 const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
@@ -42,6 +42,8 @@ const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
 type SortDirType = 'asc' | 'desc';
 
 export default function Home() {
+  const hasMounted = useRef(false);
+  const paginationRef = useRef<null | HTMLDivElement>(null);
   const [currentTab, setCurrentTab] = useState(tabs[0]);
   const [currentFilterOption, setCurrentFilterOption] = useState(
     filterOptions[0],
@@ -50,6 +52,18 @@ export default function Home() {
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState<ErrorData[]>([]);
+  const [croppedItems, setCroppedItems] = useState<ErrorData[]>([]);
+  const ITEMS_PER_PAGE = 12;
+  const [currentPage, setCurrentPage] = useState(0);
+  const pagination = useMemo(
+    () => ({
+      start: currentPage * ITEMS_PER_PAGE,
+      end: (currentPage + 1) * ITEMS_PER_PAGE,
+      total: Math.ceil(items.length / ITEMS_PER_PAGE),
+      hasPagination: items.length > ITEMS_PER_PAGE,
+    }),
+    [currentPage, items.length],
+  );
 
   const query = useQuery({
     queryKey: ['occ-errors'],
@@ -113,6 +127,10 @@ export default function Home() {
     );
   }
 
+  function handleSetCurrentPage(i: number) {
+    setCurrentPage(i);
+  }
+
   function getTableHeaderSortIcon(sortType: ErrorDataKey) {
     if (sort !== sortType) return;
     const Icon = sortDir === 'asc' ? ChevronUpIcon : ChevronDownIcon;
@@ -123,12 +141,36 @@ export default function Home() {
     );
   }
 
+  function scrollToPagination() {
+    if (paginationRef.current) {
+      paginationRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'end',
+      });
+    }
+  }
+
   useEffect(() => {
     if (query.data) {
       handleFilterItems();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data]);
+
+  useEffect(() => {
+    if (pagination.start > items.length) return;
+    setCroppedItems(items.slice(pagination.start, pagination.end));
+  }, [items, pagination]);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      // On the first render, set hasMounted to true but don't scroll
+      hasMounted.current = true;
+    } else if (pagination.hasPagination) {
+      scrollToPagination();
+    }
+  }, [pagination]);
 
   return (
     <div className="container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl bg-background-medium">
@@ -216,74 +258,105 @@ export default function Home() {
         )}
 
         {query.data && (
-          <Table className="h-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead
-                  className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
-                  onClick={() => handleSortItems('data')}
-                >
-                  Data
-                  {getTableHeaderSortIcon('data')}
-                </TableHead>
-                <TableHead
-                  className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
-                  onClick={() => handleSortItems('pedidoId')}
-                >
-                  Pedido
-                  {getTableHeaderSortIcon('pedidoId')}
-                </TableHead>
-                <TableHead className="text-center text-xl font-semibold text-foreground">
-                  Descrição
-                </TableHead>
-                <TableHead className="text-center text-xl font-semibold text-foreground">
-                  Editar
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+          <>
+            <p className="px-8 text-right text-sm">
+              Mostrando {croppedItems.length} de {items.length} items
+            </p>
 
-            <TableBody className="relative">
-              {items.map((item: ErrorData, i: number) => (
-                <TableRow
-                  key={item.pedidoId}
-                  className={cn({
-                    'bg-background-light/40': i % 2 === 0,
-                  })}
-                >
-                  {/* data */}
-                  <TableCell align="center" className="px-8">
-                    {item.data}
-                  </TableCell>
-                  {/* pedido id */}
-                  <TableCell align="center">
-                    <div className="flex items-center gap-1">
-                      <span className="min-w-24">{item.pedidoId}</span>
-                      <Button
-                        variant={'ghost'}
-                        className="size-8 p-1"
-                        onClick={() => handleCopyToClipboard(item.pedidoId)}
-                        title="Copiar id pedido"
-                      >
-                        <CopyIcon className="size-4 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                  {/* descrição */}
-                  <TableCell>{item.erro}</TableCell>
-                  {/* ações */}
-                  <TableCell align="center" className="px-8">
-                    <EditButton errorData={item} />
-                  </TableCell>
+            <Table className="h-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead
+                    className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                    onClick={() => handleSortItems('data')}
+                  >
+                    Data
+                    {getTableHeaderSortIcon('data')}
+                  </TableHead>
+                  <TableHead
+                    className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                    onClick={() => handleSortItems('pedidoId')}
+                  >
+                    Pedido
+                    {getTableHeaderSortIcon('pedidoId')}
+                  </TableHead>
+                  <TableHead className="text-center text-xl font-semibold text-foreground">
+                    Descrição
+                  </TableHead>
+                  <TableHead className="text-center text-xl font-semibold text-foreground">
+                    Editar
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+
+              <TableBody className="relative">
+                {items
+                  .slice(
+                    currentPage * ITEMS_PER_PAGE,
+                    (currentPage + 1) * ITEMS_PER_PAGE,
+                  )
+                  .map((item: ErrorData, i: number) => (
+                    <TableRow
+                      key={item.pedidoId}
+                      className={cn({
+                        'bg-background-light/40': i % 2 === 0,
+                      })}
+                    >
+                      {/* data */}
+                      <TableCell align="center" className="px-8">
+                        {item.data}
+                      </TableCell>
+                      {/* pedido id */}
+                      <TableCell align="center">
+                        <div className="flex items-center gap-1">
+                          <span className="min-w-24">{item.pedidoId}</span>
+                          <Button
+                            variant={'ghost'}
+                            className="size-8 p-1"
+                            onClick={() => handleCopyToClipboard(item.pedidoId)}
+                            title="Copiar id pedido"
+                          >
+                            <CopyIcon className="size-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      {/* descrição */}
+                      <TableCell>{item.erro}</TableCell>
+                      {/* ações */}
+                      <TableCell align="center" className="px-8">
+                        <EditButton errorData={item} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </>
         )}
-        {/* {!query.isLoading && query.data && items.length === 0 && (
+
+        {!query.isLoading && query.data && items.length === 0 && (
           <div className="flex-center flex-1">
             <p className="text-center text-xl">Nenhum item encontrado</p>
           </div>
-        )} */}
+        )}
+      </div>
+
+      {/* pagination */}
+      <div className="flex-center gap-2.5 pb-10" ref={paginationRef}>
+        {pagination.hasPagination && (
+          <>
+            {Array.from({ length: pagination.total }).map((_, i) => (
+              <Button
+                key={i}
+                variant={i === currentPage ? 'outline' : 'ghost'}
+                size={'icon'}
+                className="size-11 text-lg"
+                onClick={() => handleSetCurrentPage(i)}
+              >
+                {i + 1}
+              </Button>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
