@@ -13,7 +13,7 @@ export async function handleCopyToClipboard(text: string) {
     toast.success(`Pedido ${text} copiado`, {
       classNames: {
         title: 'font-normal text-foreground',
-        toast: 'bg-background-light',
+        toast: 'bg-background-medium border border-background/50',
       },
     });
   } catch (error) {

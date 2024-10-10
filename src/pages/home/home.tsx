@@ -5,13 +5,6 @@ import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Table,
   TableBody,
   TableCell,
@@ -42,12 +35,8 @@ const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
 type SortDirType = 'asc' | 'desc';
 
 export default function Home() {
-  const hasMounted = useRef(false);
   const paginationRef = useRef<null | HTMLDivElement>(null);
   const [currentTab, setCurrentTab] = useState(tabs[0]);
-  const [currentFilterOption, setCurrentFilterOption] = useState(
-    filterOptions[0]
-  );
   const [sort, setSort] = useState<ErrorDataKey | undefined>();
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
@@ -68,7 +57,6 @@ export default function Home() {
   const query = useQuery({
     queryKey: ['occ-errors'],
     queryFn: getOCCErrors,
-    // refetchInterval: 60000,
   });
 
   function handleFilterItems() {
@@ -76,8 +64,8 @@ export default function Home() {
     const trimmedSearch = search.trim();
     setItems(
       trimmedSearch
-        ? query.data.filter(
-            (item: ErrorData) => item[currentFilterOption] === trimmedSearch
+        ? query.data.filter((item: ErrorData) =>
+            filterOptions.some((filter) => item[filter].includes(trimmedSearch))
           )
         : query.data
     );
@@ -101,12 +89,7 @@ export default function Home() {
 
     if (sortType === sort) {
       newSortDir = getReverseSortDir();
-      setSortDir(newSortDir);
-    } else {
-      setSortDir(newSortDir);
     }
-
-    setSort(sortType);
 
     setItems((prev) =>
       prev.sort((_a, _b) => {
@@ -125,6 +108,8 @@ export default function Home() {
         }
       })
     );
+    setSortDir(newSortDir);
+    setSort(sortType);
   }
 
   function handleSetCurrentPage(i: number) {
@@ -141,16 +126,6 @@ export default function Home() {
     );
   }
 
-  function scrollToPagination() {
-    if (paginationRef.current) {
-      paginationRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'end',
-      });
-    }
-  }
-
   useEffect(() => {
     if (query.data) {
       handleFilterItems();
@@ -162,24 +137,15 @@ export default function Home() {
     setCroppedItems(items.slice(pagination.start, pagination.end));
   }, [items, pagination]);
 
-  useEffect(() => {
-    if (!hasMounted.current) {
-      // On the first render, set hasMounted to true but don't scroll
-      hasMounted.current = true;
-    } else if (pagination.hasPagination) {
-      scrollToPagination();
-    }
-  }, [pagination]);
-
   return (
-    <div className="bg-background-medium container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl">
+    <div className="container flex flex-1 flex-col gap-6 overflow-hidden rounded-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
         {tabs.map((tab) => (
           <div
             key={tab}
             className={cn(
-              'bg-background-medium rounded-t-2xl p-4 text-center',
+              'rounded-t-2xl bg-background-medium p-4 text-center',
               {
                 'bg-background-light': tab !== currentTab,
               }
@@ -196,39 +162,19 @@ export default function Home() {
       </div>
 
       {/* filters */}
-      <div className="flex-center mx-auto w-full max-w-[1000px] gap-4 p-4">
-        {/* campo de busca */}
+      <div className="flex-center mx-auto mt-4 w-full max-w-[700px] gap-4 p-4">
+        {/* search field */}
         <div className="flex flex-1 items-center border-b border-muted-foreground">
           <SearchIcon className="size-5 text-muted-foreground" />
           <Input
-            placeholder={`Pesquisar por ${currentFilterOption}`}
+            placeholder={'Pesquisar'}
             className="no-style text-lg"
             value={search}
             onChange={(ev) => setSearch(ev.target.value)}
           />
         </div>
 
-        {/* tipo de busca */}
-        <Select
-          value={currentFilterOption}
-          onValueChange={(value: ErrorDataKey) => setCurrentFilterOption(value)}
-          defaultValue={currentFilterOption}
-        >
-          <SelectTrigger className="w-[220px]">
-            <SelectValue aria-label={currentFilterOption}>
-              <span className="capitalize">{currentFilterOption}</span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {filterOptions.map((op) => (
-              <SelectItem value={op} key={op} className="capitalize">
-                {op}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* botão filtrar */}
+        {/* filter button */}
         <Button
           className="px-8 text-xl"
           onClick={handleFilterItems}
@@ -237,7 +183,7 @@ export default function Home() {
           Buscar
         </Button>
 
-        {/* botão resetar */}
+        {/* reset filter button */}
         <Button
           className="px-8 text-xl"
           variant={'outline'}
@@ -263,7 +209,7 @@ export default function Home() {
             </p>
 
             <Table>
-              <TableHeader className="border-background-light/40 border-b">
+              <TableHeader className="border-b border-background-light/40">
                 <TableRow>
                   <TableHead
                     className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
@@ -303,6 +249,7 @@ export default function Home() {
                     >
                       {/* data */}
                       <TableCell align="center">{item.data}</TableCell>
+
                       {/* pedido id */}
                       <TableCell align="center">
                         <div className="flex items-center justify-between gap-1">
@@ -317,9 +264,11 @@ export default function Home() {
                           </Button>
                         </div>
                       </TableCell>
+
                       {/* descrição */}
                       <TableCell align="center">{item.erro}</TableCell>
-                      {/* ações */}
+
+                      {/* edit button */}
                       <TableCell align="center">
                         <EditButton errorData={item} />
                       </TableCell>
