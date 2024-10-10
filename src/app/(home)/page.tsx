@@ -1,4 +1,3 @@
-import { getOCCErrors } from '@/actions/error';
 import Home from '@/app/(home)/content';
 import {
   dehydrate,

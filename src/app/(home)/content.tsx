@@ -267,14 +267,14 @@ export default function Home() {
               <TableHeader>
                 <TableRow>
                   <TableHead
-                    className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                    className="relative w-[190px] cursor-pointer text-center text-xl font-semibold text-foreground"
                     onClick={() => handleSortItems('data')}
                   >
                     Data
                     {getTableHeaderSortIcon('data')}
                   </TableHead>
                   <TableHead
-                    className="relative cursor-pointer text-center text-xl font-semibold text-foreground"
+                    className="relative w-[190px] cursor-pointer text-center text-xl font-semibold text-foreground"
                     onClick={() => handleSortItems('pedidoId')}
                   >
                     Pedido
@@ -283,7 +283,7 @@ export default function Home() {
                   <TableHead className="text-center text-xl font-semibold text-foreground">
                     Descrição
                   </TableHead>
-                  <TableHead className="text-center text-xl font-semibold text-foreground">
+                  <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
                     Editar
                   </TableHead>
                 </TableRow>
@@ -308,7 +308,7 @@ export default function Home() {
                       </TableCell>
                       {/* pedido id */}
                       <TableCell align="center">
-                        <div className="flex items-center gap-1">
+                        <div className="flex-center gap-1">
                           <span className="min-w-24">{item.pedidoId}</span>
                           <Button
                             variant={'ghost'}
@@ -321,7 +321,7 @@ export default function Home() {
                         </div>
                       </TableCell>
                       {/* descrição */}
-                      <TableCell>{item.erro}</TableCell>
+                      <TableCell align="center">{item.erro}</TableCell>
                       {/* ações */}
                       <TableCell align="center" className="px-8">
                         <EditButton errorData={item} />
