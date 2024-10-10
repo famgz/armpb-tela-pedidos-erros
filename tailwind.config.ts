@@ -2,12 +2,7 @@ import pluginAnimate from 'tailwindcss-animate';
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  darkMode: ['class'],
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       container: { center: true },
@@ -56,6 +51,9 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+      },
+      fontFamily: {
+        sans: 'Montserrat',
       },
       borderRadius: {
         lg: 'var(--radius)',

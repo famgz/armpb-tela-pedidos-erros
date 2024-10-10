@@ -1,7 +1,6 @@
 'use client';
 
 import { getOCCErrors } from '@/actions/error';
-import EditButton from '@/app/(home)/_components/edit-button';
 import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +25,7 @@ import {
   handleCopyToClipboard,
   reverseStringDate,
 } from '@/lib/utils';
+import EditButton from '@/pages/home/components/edit-button';
 import { ErrorData, ErrorDataKey } from '@/types/data';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -46,7 +46,7 @@ export default function Home() {
   const paginationRef = useRef<null | HTMLDivElement>(null);
   const [currentTab, setCurrentTab] = useState(tabs[0]);
   const [currentFilterOption, setCurrentFilterOption] = useState(
-    filterOptions[0],
+    filterOptions[0]
   );
   const [sort, setSort] = useState<ErrorDataKey | undefined>();
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
@@ -62,7 +62,7 @@ export default function Home() {
       total: Math.ceil(items.length / ITEMS_PER_PAGE),
       hasPagination: items.length > ITEMS_PER_PAGE,
     }),
-    [currentPage, items.length],
+    [currentPage, items.length]
   );
 
   const query = useQuery({
@@ -77,9 +77,9 @@ export default function Home() {
     setItems(
       trimmedSearch
         ? query.data.filter(
-            (item: ErrorData) => item[currentFilterOption] === trimmedSearch,
+            (item: ErrorData) => item[currentFilterOption] === trimmedSearch
           )
-        : query.data,
+        : query.data
     );
   }
 
@@ -123,7 +123,7 @@ export default function Home() {
           b = convertOrderIdToNumber(b);
           return newSortDir === 'asc' ? a - b : b - a;
         }
-      }),
+      })
     );
   }
 
@@ -155,7 +155,6 @@ export default function Home() {
     if (query.data) {
       handleFilterItems();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data]);
 
   useEffect(() => {
@@ -173,17 +172,17 @@ export default function Home() {
   }, [pagination]);
 
   return (
-    <div className="container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl bg-background-medium">
+    <div className="bg-background-medium container flex flex-1 flex-col gap-10 overflow-hidden rounded-2xl">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
         {tabs.map((tab) => (
           <div
             key={tab}
             className={cn(
-              'rounded-t-2xl bg-background-medium p-4 text-center',
+              'bg-background-medium rounded-t-2xl p-4 text-center',
               {
                 'bg-background-light': tab !== currentTab,
-              },
+              }
             )}
           >
             <p
@@ -197,7 +196,7 @@ export default function Home() {
       </div>
 
       {/* filters */}
-      <div className="flex-center mx-auto w-full max-w-[1200px] gap-4 p-4">
+      <div className="flex-center mx-auto w-full max-w-[1000px] gap-4 p-4">
         {/* campo de busca */}
         <div className="flex flex-1 items-center border-b border-muted-foreground">
           <SearchIcon className="size-5 text-muted-foreground" />
@@ -250,7 +249,7 @@ export default function Home() {
       </div>
 
       {/* table */}
-      <div className="relative flex flex-1 flex-col gap-2">
+      <div className="flex h-full flex-1 flex-col gap-2">
         {query.isLoading && <Loading />}
 
         {query.error instanceof Error && (
@@ -263,18 +262,18 @@ export default function Home() {
               Mostrando {croppedItems.length} de {items.length} items
             </p>
 
-            <Table className="h-full">
-              <TableHeader>
+            <Table>
+              <TableHeader className="border-background-light/40 border-b">
                 <TableRow>
                   <TableHead
-                    className="relative w-[190px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                    className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
                     onClick={() => handleSortItems('data')}
                   >
                     Data
                     {getTableHeaderSortIcon('data')}
                   </TableHead>
                   <TableHead
-                    className="relative w-[190px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                    className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
                     onClick={() => handleSortItems('pedidoId')}
                   >
                     Pedido
@@ -289,11 +288,11 @@ export default function Home() {
                 </TableRow>
               </TableHeader>
 
-              <TableBody className="relative">
+              <TableBody>
                 {items
                   .slice(
                     currentPage * ITEMS_PER_PAGE,
-                    (currentPage + 1) * ITEMS_PER_PAGE,
+                    (currentPage + 1) * ITEMS_PER_PAGE
                   )
                   .map((item: ErrorData, i: number) => (
                     <TableRow
@@ -303,13 +302,11 @@ export default function Home() {
                       })}
                     >
                       {/* data */}
-                      <TableCell align="center" className="px-8">
-                        {item.data}
-                      </TableCell>
+                      <TableCell align="center">{item.data}</TableCell>
                       {/* pedido id */}
                       <TableCell align="center">
-                        <div className="flex-center gap-1">
-                          <span className="min-w-24">{item.pedidoId}</span>
+                        <div className="flex items-center justify-between gap-1">
+                          <span>{item.pedidoId}</span>
                           <Button
                             variant={'ghost'}
                             className="size-8 p-1"
@@ -323,7 +320,7 @@ export default function Home() {
                       {/* descrição */}
                       <TableCell align="center">{item.erro}</TableCell>
                       {/* ações */}
-                      <TableCell align="center" className="px-8">
+                      <TableCell align="center">
                         <EditButton errorData={item} />
                       </TableCell>
                     </TableRow>
@@ -334,7 +331,7 @@ export default function Home() {
         )}
 
         {!query.isLoading && query.data && items.length === 0 && (
-          <div className="flex-center flex-1">
+          <div className="flex-center flex-1 py-10">
             <p className="text-center text-xl">Nenhum item encontrado</p>
           </div>
         )}
