@@ -102,7 +102,7 @@ export default function Home() {
     }
 
     setItems((prev) =>
-      prev.sort((_a, _b) => {
+      [...prev].sort((_a, _b) => {
         let a: string | number = _a[sortType!];
         let b: string | number = _b[sortType!];
         if (sortType === 'data') {
@@ -120,6 +120,7 @@ export default function Home() {
     );
     setSortDir(newSortDir);
     setSort(sortType);
+    setCurrentPage(0);
   }
 
   function handleSetCurrentPage(i: number) {
