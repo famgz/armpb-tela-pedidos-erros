@@ -43,7 +43,7 @@ export default function Home() {
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState<ErrorData[]>([]);
-  const [croppedItems, setCroppedItems] = useState<ErrorData[]>([]);
+  const [paginatedItems, setPaginatedItems] = useState<ErrorData[]>([]);
 
   const [currentPage, setCurrentPage] = useState(0);
   const pagination = useMemo(
@@ -53,7 +53,7 @@ export default function Home() {
       total: Math.ceil(items.length / ITEMS_PER_PAGE),
       hasPagination: items.length > ITEMS_PER_PAGE,
     }),
-    [currentPage, items.length]
+    [currentPage, items]
   );
 
   const api = getEndpoint(errorKey);
@@ -143,8 +143,7 @@ export default function Home() {
   }, [query.data]);
 
   useEffect(() => {
-    if (pagination.start > items.length) return;
-    setCroppedItems(items.slice(pagination.start, pagination.end));
+    setPaginatedItems(items.slice(pagination.start, pagination.end));
   }, [items, pagination]);
 
   return (
@@ -216,7 +215,7 @@ export default function Home() {
           {query.data && (
             <>
               <p className="px-8 text-right text-sm">
-                Mostrando {croppedItems.length} de {items.length} items
+                {items.length} items encontrados
               </p>
 
               <Table>
@@ -246,47 +245,40 @@ export default function Home() {
                 </TableHeader>
 
                 <TableBody>
-                  {items
-                    .slice(
-                      currentPage * ITEMS_PER_PAGE,
-                      (currentPage + 1) * ITEMS_PER_PAGE
-                    )
-                    .map((item: ErrorData, i: number) => (
-                      <TableRow
-                        key={item.pedidoId}
-                        className={cn({
-                          'bg-background-light/40': i % 2 === 0,
-                        })}
-                      >
-                        {/* date */}
-                        <TableCell align="center">{item.data}</TableCell>
+                  {paginatedItems.map((item: ErrorData, i: number) => (
+                    <TableRow
+                      key={item.pedidoId}
+                      className={cn({
+                        'bg-background-light/40': i % 2 === 0,
+                      })}
+                    >
+                      {/* date */}
+                      <TableCell align="center">{item.data}</TableCell>
 
-                        {/* order id */}
-                        <TableCell align="center">
-                          <div className="flex items-center justify-between gap-1">
-                            <span>{item.pedidoId}</span>
-                            <Button
-                              variant={'ghost'}
-                              className="size-8 p-1"
-                              onClick={() =>
-                                handleCopyToClipboard(item.pedidoId)
-                              }
-                              title="Copiar id pedido"
-                            >
-                              <CopyIcon className="size-4 text-muted-foreground" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                      {/* order id */}
+                      <TableCell align="center">
+                        <div className="flex items-center justify-between gap-1">
+                          <span>{item.pedidoId}</span>
+                          <Button
+                            variant={'ghost'}
+                            className="size-8 p-1"
+                            onClick={() => handleCopyToClipboard(item.pedidoId)}
+                            title="Copiar id pedido"
+                          >
+                            <CopyIcon className="size-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </TableCell>
 
-                        {/* description */}
-                        <TableCell align="center">{item.erro}</TableCell>
+                      {/* description */}
+                      <TableCell align="center">{item.erro}</TableCell>
 
-                        {/* edit button */}
-                        <TableCell align="center">
-                          <EditButton errorData={item} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                      {/* edit button */}
+                      <TableCell align="center">
+                        <EditButton errorData={item} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </>
