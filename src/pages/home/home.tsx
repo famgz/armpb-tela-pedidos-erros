@@ -10,7 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { errorInfos, ErrorKey, errorKeys } from '@/constants/data';
+import {
+  ErrorData,
+  ErrorDataKey,
+  errorInfos,
+  ErrorKey,
+  errorKeys,
+} from '@/constants/data';
 import getEndpoint from '@/lib/axios';
 import {
   cn,
@@ -19,7 +25,6 @@ import {
   reverseStringDate,
 } from '@/lib/utils';
 import EditButton from '@/pages/home/components/edit-button';
-import { ErrorData, ErrorDataKey } from '@/types/data';
 import { useQuery } from '@tanstack/react-query';
 import {
   ChevronDownIcon,
@@ -151,13 +156,15 @@ export default function Home() {
     <div className="container flex flex-1 flex-col overflow-hidden rounded-b-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
-        {Object.entries(errorInfos).map(([key, { label }]) => (
+        {Object.entries(errorInfos).map(([key, { label }], i) => (
           <div
             key={key}
             className={cn(
-              '-mr-px rounded-t-2xl border-b border-black/50 bg-background-light p-4 text-center',
+              '-mr-px rounded-t-2xl border-b border-black/50 bg-background-light p-4 text-center shadow-xl',
               {
-                'z-10 border border-b-0 bg-background-medium': key === errorKey,
+                'z-10 border border-b-0 bg-background-medium shadow-none':
+                  key === errorKey,
+                'shadow-none': key !== errorKey && i === 2,
               }
             )}
           >
@@ -171,7 +178,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="flex flex-1 flex-col gap-6 rounded-b-2xl border border-t-0 border-black/50 pt-6">
+      <div className="z-10 flex flex-1 flex-col gap-6 rounded-b-2xl border border-t-0 border-black/50 pt-6">
         {/* filters */}
         <div className="flex-center mx-auto mt-4 w-full max-w-[700px] gap-4 p-4">
           {/* search field */}
