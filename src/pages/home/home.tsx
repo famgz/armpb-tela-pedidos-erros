@@ -148,16 +148,16 @@ export default function Home() {
   }, [items, pagination]);
 
   return (
-    <div className="container flex flex-1 flex-col gap-6 overflow-hidden rounded-2xl bg-background-medium">
+    <div className="container flex flex-1 flex-col overflow-hidden rounded-b-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
         {Object.entries(errorInfos).map(([key, { label }]) => (
           <div
             key={key}
             className={cn(
-              'rounded-t-2xl bg-background-medium p-4 text-center',
+              '-mr-px rounded-t-2xl border-b border-black/50 bg-background-light p-4 text-center',
               {
-                'bg-background-light': key !== errorKey,
+                'z-10 border border-b-0 bg-background-medium': key === errorKey,
               }
             )}
           >
@@ -171,148 +171,152 @@ export default function Home() {
         ))}
       </div>
 
-      {/* filters */}
-      <div className="flex-center mx-auto mt-4 w-full max-w-[700px] gap-4 p-4">
-        {/* search field */}
-        <div className="flex flex-1 items-center border-b border-muted-foreground">
-          <SearchIcon className="size-5 text-muted-foreground" />
-          <Input
-            placeholder={'Pesquisar'}
-            className="no-style text-lg"
-            value={search}
-            onChange={(ev) => setSearch(ev.target.value)}
-          />
+      <div className="flex flex-1 flex-col gap-6 rounded-b-2xl border border-t-0 border-black/50 pt-6">
+        {/* filters */}
+        <div className="flex-center mx-auto mt-4 w-full max-w-[700px] gap-4 p-4">
+          {/* search field */}
+          <div className="flex flex-1 items-center border-b border-muted-foreground">
+            <SearchIcon className="size-5 text-muted-foreground" />
+            <Input
+              placeholder={'Pesquisar'}
+              className="no-style text-lg"
+              value={search}
+              onChange={(ev) => setSearch(ev.target.value)}
+            />
+          </div>
+
+          {/* filter button */}
+          <Button
+            className="px-8 text-xl"
+            onClick={handleFilterItems}
+            disabled={!query.data}
+          >
+            Buscar
+          </Button>
+
+          {/* reset filter button */}
+          <Button
+            className="px-8 text-xl"
+            variant={'outline'}
+            onClick={handleClearSearch}
+            disabled={!query.data}
+          >
+            Limpar
+          </Button>
         </div>
 
-        {/* filter button */}
-        <Button
-          className="px-8 text-xl"
-          onClick={handleFilterItems}
-          disabled={!query.data}
-        >
-          Buscar
-        </Button>
+        {/* table */}
+        <div className="flex h-full flex-1 flex-col gap-2">
+          {query.isLoading && <Loading />}
 
-        {/* reset filter button */}
-        <Button
-          className="px-8 text-xl"
-          variant={'outline'}
-          onClick={handleClearSearch}
-          disabled={!query.data}
-        >
-          Limpar
-        </Button>
-      </div>
+          {query.error instanceof Error && (
+            <div>Error: {query.error.message}</div>
+          )}
 
-      {/* table */}
-      <div className="flex h-full flex-1 flex-col gap-2">
-        {query.isLoading && <Loading />}
+          {query.data && (
+            <>
+              <p className="px-8 text-right text-sm">
+                Mostrando {croppedItems.length} de {items.length} items
+              </p>
 
-        {query.error instanceof Error && (
-          <div>Error: {query.error.message}</div>
-        )}
-
-        {query.data && (
-          <>
-            <p className="px-8 text-right text-sm">
-              Mostrando {croppedItems.length} de {items.length} items
-            </p>
-
-            <Table>
-              <TableHeader className="border-b border-background-light/40">
-                <TableRow>
-                  <TableHead
-                    className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
-                    onClick={() => handleSortItems('data')}
-                  >
-                    Data
-                    {getTableHeaderSortIcon('data')}
-                  </TableHead>
-                  <TableHead
-                    className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
-                    onClick={() => handleSortItems('pedidoId')}
-                  >
-                    Pedido
-                    {getTableHeaderSortIcon('pedidoId')}
-                  </TableHead>
-                  <TableHead className="text-center text-xl font-semibold text-foreground">
-                    Descrição
-                  </TableHead>
-                  <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
-                    Editar
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {items
-                  .slice(
-                    currentPage * ITEMS_PER_PAGE,
-                    (currentPage + 1) * ITEMS_PER_PAGE
-                  )
-                  .map((item: ErrorData, i: number) => (
-                    <TableRow
-                      key={item.pedidoId}
-                      className={cn({
-                        'bg-background-light/40': i % 2 === 0,
-                      })}
+              <Table>
+                <TableHeader className="border-b border-background-light/40">
+                  <TableRow>
+                    <TableHead
+                      className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                      onClick={() => handleSortItems('data')}
                     >
-                      {/* date */}
-                      <TableCell align="center">{item.data}</TableCell>
+                      Data
+                      {getTableHeaderSortIcon('data')}
+                    </TableHead>
+                    <TableHead
+                      className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                      onClick={() => handleSortItems('pedidoId')}
+                    >
+                      Pedido
+                      {getTableHeaderSortIcon('pedidoId')}
+                    </TableHead>
+                    <TableHead className="text-center text-xl font-semibold text-foreground">
+                      Descrição
+                    </TableHead>
+                    <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
+                      Editar
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
 
-                      {/* order id */}
-                      <TableCell align="center">
-                        <div className="flex items-center justify-between gap-1">
-                          <span>{item.pedidoId}</span>
-                          <Button
-                            variant={'ghost'}
-                            className="size-8 p-1"
-                            onClick={() => handleCopyToClipboard(item.pedidoId)}
-                            title="Copiar id pedido"
-                          >
-                            <CopyIcon className="size-4 text-muted-foreground" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                <TableBody>
+                  {items
+                    .slice(
+                      currentPage * ITEMS_PER_PAGE,
+                      (currentPage + 1) * ITEMS_PER_PAGE
+                    )
+                    .map((item: ErrorData, i: number) => (
+                      <TableRow
+                        key={item.pedidoId}
+                        className={cn({
+                          'bg-background-light/40': i % 2 === 0,
+                        })}
+                      >
+                        {/* date */}
+                        <TableCell align="center">{item.data}</TableCell>
 
-                      {/* description */}
-                      <TableCell align="center">{item.erro}</TableCell>
+                        {/* order id */}
+                        <TableCell align="center">
+                          <div className="flex items-center justify-between gap-1">
+                            <span>{item.pedidoId}</span>
+                            <Button
+                              variant={'ghost'}
+                              className="size-8 p-1"
+                              onClick={() =>
+                                handleCopyToClipboard(item.pedidoId)
+                              }
+                              title="Copiar id pedido"
+                            >
+                              <CopyIcon className="size-4 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        </TableCell>
 
-                      {/* edit button */}
-                      <TableCell align="center">
-                        <EditButton errorData={item} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </>
-        )}
+                        {/* description */}
+                        <TableCell align="center">{item.erro}</TableCell>
 
-        {!query.isLoading && query.data && items.length === 0 && (
-          <div className="flex-center flex-1 py-10">
-            <p className="text-center text-xl">Nenhum item encontrado</p>
-          </div>
-        )}
-      </div>
+                        {/* edit button */}
+                        <TableCell align="center">
+                          <EditButton errorData={item} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </>
+          )}
 
-      {/* pagination */}
-      <div className="flex-center gap-2.5 pb-10">
-        {pagination.hasPagination && (
-          <>
-            {Array.from({ length: pagination.total }).map((_, i) => (
-              <Button
-                key={i}
-                variant={i === currentPage ? 'outline' : 'ghost'}
-                size={'icon'}
-                className="size-11 text-lg"
-                onClick={() => handleSetCurrentPage(i)}
-              >
-                {i + 1}
-              </Button>
-            ))}
-          </>
-        )}
+          {!query.isLoading && query.data && items.length === 0 && (
+            <div className="flex-center flex-1 py-10">
+              <p className="text-center text-xl">Nenhum item encontrado</p>
+            </div>
+          )}
+        </div>
+
+        {/* pagination */}
+        <div className="flex-center gap-2.5 pb-10">
+          {pagination.hasPagination && (
+            <>
+              {Array.from({ length: pagination.total }).map((_, i) => (
+                <Button
+                  key={i}
+                  variant={i === currentPage ? 'outline' : 'ghost'}
+                  size={'icon'}
+                  className="size-11 text-lg"
+                  onClick={() => handleSetCurrentPage(i)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
