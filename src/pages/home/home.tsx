@@ -1,6 +1,4 @@
-'use client';
-
-import { getOCCErrors } from '@/actions/error';
+import { getErrors } from '@/actions/error';
 import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { errorInfos, errorKeys } from '@/constants/data';
+import getEndpoint from '@/lib/axios';
 import {
   cn,
   convertOrderIdToNumber,
@@ -27,22 +27,24 @@ import {
   CopyIcon,
   SearchIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-const tabs = ['Protheus', 'OCC', 'Histórico'];
-const filterOptions: ErrorDataKey[] = ['pedidoId', 'data'];
+import { useEffect, useMemo, useState } from 'react';
 
 type SortDirType = 'asc' | 'desc';
 
+const ITEMS_PER_PAGE = 12;
+
 export default function Home() {
-  const paginationRef = useRef<null | HTMLDivElement>(null);
-  const [currentTab, setCurrentTab] = useState(tabs[0]);
+  const [errorKey, setErrorKey] = useState(errorKeys[0]);
+  const errorInfo = useMemo(
+    () => errorInfos[errorKey as keyof typeof errorInfos],
+    [errorKey]
+  );
   const [sort, setSort] = useState<ErrorDataKey | undefined>();
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState<ErrorData[]>([]);
   const [croppedItems, setCroppedItems] = useState<ErrorData[]>([]);
-  const ITEMS_PER_PAGE = 12;
+
   const [currentPage, setCurrentPage] = useState(0);
   const pagination = useMemo(
     () => ({
@@ -54,10 +56,16 @@ export default function Home() {
     [currentPage, items.length]
   );
 
+  const api = getEndpoint(errorKey);
+
   const query = useQuery({
-    queryKey: ['occ-errors'],
-    queryFn: getOCCErrors,
+    queryKey: [errorKey],
+    queryFn: () => getErrors(api),
   });
+
+  function handleTabChange(errorKey: string) {
+    setErrorKey(errorKey);
+  }
 
   function handleFilterItems() {
     if (!query.data) return;
@@ -65,7 +73,9 @@ export default function Home() {
     setItems(
       trimmedSearch
         ? query.data.filter((item: ErrorData) =>
-            filterOptions.some((filter) => item[filter].includes(trimmedSearch))
+            errorInfo.keysToSearch.some((key) =>
+              item[key as keyof ErrorData].includes(trimmedSearch)
+            )
           )
         : query.data
     );
@@ -141,21 +151,21 @@ export default function Home() {
     <div className="container flex flex-1 flex-col gap-6 overflow-hidden rounded-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
-        {tabs.map((tab) => (
+        {Object.entries(errorInfos).map(([key, { label }]) => (
           <div
-            key={tab}
+            key={key}
             className={cn(
               'rounded-t-2xl bg-background-medium p-4 text-center',
               {
-                'bg-background-light': tab !== currentTab,
+                'bg-background-light': key !== errorKey,
               }
             )}
           >
             <p
-              onClick={() => setCurrentTab(tab)}
+              onClick={() => handleTabChange(key)}
               className="cursor-pointer text-xl font-semibold hover:text-white/70"
             >
-              {tab}
+              {label}
             </p>
           </div>
         ))}
@@ -247,10 +257,10 @@ export default function Home() {
                         'bg-background-light/40': i % 2 === 0,
                       })}
                     >
-                      {/* data */}
+                      {/* date */}
                       <TableCell align="center">{item.data}</TableCell>
 
-                      {/* pedido id */}
+                      {/* order id */}
                       <TableCell align="center">
                         <div className="flex items-center justify-between gap-1">
                           <span>{item.pedidoId}</span>
@@ -265,7 +275,7 @@ export default function Home() {
                         </div>
                       </TableCell>
 
-                      {/* descrição */}
+                      {/* description */}
                       <TableCell align="center">{item.erro}</TableCell>
 
                       {/* edit button */}
@@ -287,7 +297,7 @@ export default function Home() {
       </div>
 
       {/* pagination */}
-      <div className="flex-center gap-2.5 pb-10" ref={paginationRef}>
+      <div className="flex-center gap-2.5 pb-10">
         {pagination.hasPagination && (
           <>
             {Array.from({ length: pagination.total }).map((_, i) => (

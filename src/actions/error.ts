@@ -1,6 +1,6 @@
-import api from '@/lib/axios';
+import { AxiosInstance } from 'axios';
 
-export async function getOCCErrors() {
+export async function getErrors(api: AxiosInstance) {
   const response = await api.get('');
   return response.data;
 }

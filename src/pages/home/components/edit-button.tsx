@@ -40,7 +40,7 @@ export default function EditButton({ errorData }: Props) {
             <span className="line-clamp-2 flex-1 text-center">
               {errorData.erro}
             </span>
-            <AlertDialogCancel className="!-mt-3 -mr-3 size-10 self-start border-none p-1">
+            <AlertDialogCancel className="!-mt-3 -mr-3 size-8 self-start border-none p-1">
               <XIcon
                 className="size-5 cursor-pointer text-foreground"
                 strokeWidth={3}
