@@ -1,4 +1,4 @@
-import { getErrors } from '@/actions/error';
+import { getErrors, updateErrorStatus } from '@/actions/error';
 import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ import {
   reverseStringDate,
 } from '@/lib/utils';
 import EditButton from '@/pages/home/components/edit-button';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -33,17 +33,16 @@ import {
   SearchIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 type SortDirType = 'asc' | 'desc';
 
 const ITEMS_PER_PAGE = 12;
 
 export default function Home() {
+  const queryClient = useQueryClient();
   const [errorKey, setErrorKey] = useState<ErrorKey>(errorKeys[0]);
-  const errorInfo = useMemo(
-    () => errorInfos[errorKey as keyof typeof errorInfos],
-    [errorKey]
-  );
+  const errorInfo = useMemo(() => errorInfos[errorKey as ErrorKey], [errorKey]);
   const [sort, setSort] = useState<ErrorDataKey | undefined>();
   const [sortDir, setSortDir] = useState<SortDirType>('asc');
   const [search, setSearch] = useState('');
@@ -67,6 +66,36 @@ export default function Home() {
     queryKey: [errorKey],
     queryFn: () => getErrors(errorKey, api),
   });
+
+  const mutation = useMutation({
+    mutationFn: (data: {
+      orderId: string;
+      body: { status: string; motivo: string };
+    }) => updateErrorStatus(data.orderId, data.body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [errorKey] });
+    },
+  });
+
+  function handleStatusUpdate(orderId: string, status: string, motivo: string) {
+    status = status.trim();
+    if (!status) return;
+    mutation.mutate(
+      { orderId, body: { status, motivo } },
+      {
+        onSuccess: () => toast.success(`Item ${orderId} editado com sucesso!`),
+        onError: (error: unknown) => {
+          if (error instanceof Error) {
+            toast.error(`Erro ao editar o item ${orderId}. \n${error.message}`);
+          } else {
+            toast.error(
+              `Erro ao editar o item ${orderId}\n. Erro desconhecido`
+            );
+          }
+        },
+      }
+    );
+  }
 
   function handleTabChange(errorKey: ErrorKey) {
     setErrorKey(errorKey);
@@ -111,6 +140,7 @@ export default function Home() {
         let a: string | number = _a[sortType!];
         let b: string | number = _b[sortType!];
         if (sortType === 'data') {
+          if (!(a && b)) return 0;
           a = reverseStringDate(a);
           b = reverseStringDate(b);
           if (a < b) return newSortDir === 'asc' ? -1 : 1;
@@ -246,9 +276,11 @@ export default function Home() {
                     <TableHead className="text-center text-xl font-semibold text-foreground">
                       Descrição
                     </TableHead>
-                    <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
-                      Editar
-                    </TableHead>
+                    {errorKey !== 'history' && (
+                      <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
+                        Editar
+                      </TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
 
@@ -282,9 +314,14 @@ export default function Home() {
                       <TableCell align="center">{item.erro}</TableCell>
 
                       {/* edit button */}
-                      <TableCell align="center">
-                        <EditButton errorData={item} />
-                      </TableCell>
+                      {errorKey !== 'history' && (
+                        <TableCell align="center">
+                          <EditButton
+                            errorData={item}
+                            onSubmit={handleStatusUpdate}
+                          />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

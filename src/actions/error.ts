@@ -1,4 +1,5 @@
 import { ErrorData, ErrorKey } from '@/constants/data';
+import getEndpoint from '@/lib/axios';
 import { normalizeOCCResponse } from '@/lib/utils';
 import { AxiosInstance, isAxiosError } from 'axios';
 
@@ -23,4 +24,15 @@ export async function getErrors(
     }
     throw error;
   }
+}
+
+export async function updateErrorStatus(
+  orderId: string,
+  body: { status: string; motivo: string }
+) {
+  if (!orderId) throw new Error('Id do pedido não pode ser vazio');
+  if (!body.motivo) throw new Error('Motivo da edição não pode ser vazio');
+  const api = getEndpoint('protheus');
+  const response = await api.put(`/${orderId}`, body);
+  return response.data;
 }

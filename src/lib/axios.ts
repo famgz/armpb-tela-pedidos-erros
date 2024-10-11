@@ -10,9 +10,7 @@ const endpointsGET = {
 
 function getEndpoint(errorType: string) {
   return axios.create({
-    baseURL:
-      endpointsGET[errorType as keyof typeof endpointsGET] ||
-      Object.values(endpointsGET)[0],
+    baseURL: endpointsGET[errorType as keyof typeof endpointsGET],
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',

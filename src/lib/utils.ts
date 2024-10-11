@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 export async function handleCopyToClipboard(text: string) {
   try {
     await copy(text);
-    toast.success(`Pedido ${text} copiado`, {
+    toast.success(`ID do pedido ${text} copiado`, {
       classNames: {
         title: 'font-normal text-foreground',
         toast: 'bg-background-medium border border-background/50',

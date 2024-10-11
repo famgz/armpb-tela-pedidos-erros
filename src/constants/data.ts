@@ -2,7 +2,7 @@ import getEndpoint from '@/lib/axios';
 
 export type ErrorKey = 'protheus' | 'occ' | 'history';
 
-export const errorKeys: ErrorKey[] = ['protheus', 'occ', 'history'] as const;
+export const errorKeys: ErrorKey[] = ['protheus', 'occ', 'history'];
 
 export interface ErrorData {
   data: string;
@@ -31,3 +31,5 @@ export const errorInfos = {
     keysToSearch: ['pedidoId', 'data'],
   },
 };
+
+export const updatedErrorStatus = 'ER'; // "WA" for web & aps | using "ER" will keep the item active

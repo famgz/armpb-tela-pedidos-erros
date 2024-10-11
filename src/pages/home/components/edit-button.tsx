@@ -13,14 +13,22 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ErrorData } from '@/types/data';
+import { ErrorData, updatedErrorStatus } from '@/constants/data';
 import { SquarePenIcon, XIcon } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
   errorData: ErrorData;
+  onSubmit: (orderId: string, status: string, motivo: string) => void;
 }
 
-export default function EditButton({ errorData }: Props) {
+export default function EditButton({ errorData, onSubmit }: Props) {
+  const [obs, setObs] = useState('');
+
+  function handleOnSubmit() {
+    onSubmit(errorData.pedidoId, updatedErrorStatus, obs);
+  }
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -54,13 +62,18 @@ export default function EditButton({ errorData }: Props) {
             placeholder="Escrever observação..."
             rows={6}
             className="bg-background-light text-xl text-foreground placeholder:text-foreground/80"
+            value={obs}
+            onChange={(e) => setObs(e.target.value)}
           />
 
           <AlertDialogFooter className="gap-3">
             <AlertDialogCancel className="px-10 py-3 text-xl">
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction className="px-10 py-3 text-xl">
+            <AlertDialogAction
+              className="px-10 py-3 text-xl"
+              onClick={handleOnSubmit}
+            >
               Enviar
             </AlertDialogAction>
           </AlertDialogFooter>
