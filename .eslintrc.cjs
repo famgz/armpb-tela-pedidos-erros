@@ -34,5 +34,6 @@ module.exports = {
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ], //should add ".ts" if typescript project
     '@typescript-eslint/no-unused-vars': 'off',
+    'react/prop-types': 'off',
   },
 };

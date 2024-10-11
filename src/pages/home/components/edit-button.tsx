@@ -29,7 +29,7 @@ export default function EditButton({ errorData }: Props) {
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="bg-background-medium p-0">
+      <AlertDialogContent className="max-w-[800px] bg-background-medium p-0">
         <AlertDialogHeader className="bg-background p-6">
           <AlertDialogTitle className="flex items-start gap-10 font-normal">
             <AlertDialogDescription className="sr-only">
@@ -52,7 +52,7 @@ export default function EditButton({ errorData }: Props) {
         <div className="space-y-6 p-6">
           <Textarea
             placeholder="Escrever observação..."
-            rows={5}
+            rows={6}
             className="bg-background-light text-xl text-foreground placeholder:text-foreground/80"
           />
 
