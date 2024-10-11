@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { errorInfos, errorKeys } from '@/constants/data';
+import { errorInfos, ErrorKey, errorKeys } from '@/constants/data';
 import getEndpoint from '@/lib/axios';
 import {
   cn,
@@ -34,7 +34,7 @@ type SortDirType = 'asc' | 'desc';
 const ITEMS_PER_PAGE = 12;
 
 export default function Home() {
-  const [errorKey, setErrorKey] = useState(errorKeys[0]);
+  const [errorKey, setErrorKey] = useState<ErrorKey>(errorKeys[0]);
   const errorInfo = useMemo(
     () => errorInfos[errorKey as keyof typeof errorInfos],
     [errorKey]
@@ -60,10 +60,10 @@ export default function Home() {
 
   const query = useQuery({
     queryKey: [errorKey],
-    queryFn: () => getErrors(api),
+    queryFn: () => getErrors(errorKey, api),
   });
 
-  function handleTabChange(errorKey: string) {
+  function handleTabChange(errorKey: ErrorKey) {
     setErrorKey(errorKey);
   }
 
@@ -84,7 +84,7 @@ export default function Home() {
   function handleClearSearch() {
     if (search) {
       setSearch('');
-      setItems(query.data);
+      setItems(query.data as ErrorData[]);
     }
   }
 
@@ -162,7 +162,7 @@ export default function Home() {
             )}
           >
             <p
-              onClick={() => handleTabChange(key)}
+              onClick={() => handleTabChange(key as ErrorKey)}
               className="cursor-pointer text-xl font-semibold hover:text-white/70"
             >
               {label}
@@ -301,7 +301,7 @@ export default function Home() {
                   key={i}
                   variant={i === currentPage ? 'outline' : 'ghost'}
                   size={'icon'}
-                  className="size-11 text-lg"
+                  className="size-11 text-lg shadow-md"
                   onClick={() => handleSetCurrentPage(i)}
                 >
                   {i + 1}

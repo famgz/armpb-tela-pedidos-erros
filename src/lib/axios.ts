@@ -1,15 +1,18 @@
 import axios from 'axios';
 
-const endpoints = {
-  protheus: 'http://site-vw.ncl.intranet/orders-voa/api/errors',
-  occ: 'http://site-vw.ncl.intranet/orders-voa/api/errors',
+const baseUrl = 'http://site-vw.ncl.intranet/orders-voa/api';
+
+const endpointsGET = {
+  protheus: baseUrl + '/errors',
+  occ: baseUrl + '/errors/import',
+  history: baseUrl + '/errors',
 };
 
 function getEndpoint(errorType: string) {
   return axios.create({
     baseURL:
-      endpoints[errorType as keyof typeof endpoints] ||
-      Object.values(endpoints)[0],
+      endpointsGET[errorType as keyof typeof endpointsGET] ||
+      Object.values(endpointsGET)[0],
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
