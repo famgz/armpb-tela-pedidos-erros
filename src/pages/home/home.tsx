@@ -247,7 +247,9 @@ export default function Home() {
           {query.isLoading && <Loading />}
 
           {query.error instanceof Error && (
-            <div>Error: {query.error.message}</div>
+            <div className="flex-center size-full flex-1">
+              <span className="size-20">Error: {query.error.message}</span>
+            </div>
           )}
 
           {query.data && (
