@@ -31,7 +31,7 @@ export async function updateErrorStatus(
   body: { status: string; motivo: string }
 ) {
   if (!orderId) throw new Error('Id do pedido não pode ser vazio');
-  if (!body.motivo) throw new Error('Motivo da edição não pode ser vazio');
+  if (!body.motivo) throw new Error('O campo "motivo" não pode ser vazio');
   const api = getEndpoint('protheus');
   const response = await api.put(`/${orderId}`, body);
   return response.data;
