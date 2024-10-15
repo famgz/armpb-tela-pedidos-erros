@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import copy from 'clipboard-copy';
-import { toast } from 'sonner';
 import { ErrorData, OCCData } from '@/constants/data';
+import copy from 'clipboard-copy';
+import { clsx, type ClassValue } from 'clsx';
+import { toast } from 'sonner';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,7 +18,7 @@ export async function handleCopyToClipboard(text: string) {
       },
     });
   } catch (error) {
-    console.error('Failed to copy text to clipboard', error);
+    console.error(`Erro ao copiar o texto ${text}`, error);
   }
 }
 

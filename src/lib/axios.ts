@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const baseUrl = new URL('http://site-vw.ncl.intranet/orders-voa/api/errors/');
 // const baseUrl = 'http://localhost:3001';
+const baseUrl = new URL(import.meta.env.VITE_API_BASE_URL!);
 
 const endpointsGET = {
   base: baseUrl.href,

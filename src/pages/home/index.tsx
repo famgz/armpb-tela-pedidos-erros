@@ -1,4 +1,5 @@
 import { getErrors, updateErrorStatus } from '@/actions/error';
+import EditButton from '@/components/edit-button';
 import Loading from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +25,6 @@ import {
   handleCopyToClipboard,
   reverseStringDate,
 } from '@/lib/utils';
-import EditButton from '@/components/edit-button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronDownIcon,
