@@ -26,7 +26,9 @@ export default function EditButton({ errorData, onSubmit }: Props) {
   const [obs, setObs] = useState(errorData?.obs || '');
 
   function handleOnSubmit() {
-    onSubmit(errorData.pedidoId, updatedErrorStatus, obs);
+    const trimmedObs = obs.trim();
+    if (!trimmedObs) return;
+    onSubmit(errorData.pedidoId, updatedErrorStatus, trimmedObs);
   }
 
   return (
@@ -79,6 +81,7 @@ export default function EditButton({ errorData, onSubmit }: Props) {
             <AlertDialogAction
               className="px-10 py-3 text-xl"
               onClick={handleOnSubmit}
+              disabled={!obs.trim()}
             >
               Enviar
             </AlertDialogAction>
