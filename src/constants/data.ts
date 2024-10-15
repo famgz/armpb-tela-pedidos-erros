@@ -7,6 +7,7 @@ export const errorKeys: ErrorKey[] = ['protheus', 'occ', 'history'];
 export interface ErrorData {
   data: string;
   erro: string;
+  obs?: string;
   pedidoId: string;
 }
 
@@ -32,4 +33,4 @@ export const errorInfos = {
   },
 };
 
-export const updatedErrorStatus = 'ER'; // "WA" for web & aps | using "ER" will keep the item active
+export const updatedErrorStatus = 'WA'; // use "WA" for web & apps | using "ER" will keep the item as "active"

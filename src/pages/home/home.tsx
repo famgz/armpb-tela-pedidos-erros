@@ -65,6 +65,7 @@ export default function Home() {
   const query = useQuery({
     queryKey: [errorKey],
     queryFn: () => getErrors(errorKey, api),
+    retry: 1,
   });
 
   const mutation = useMutation({
@@ -108,7 +109,7 @@ export default function Home() {
       trimmedSearch
         ? query.data.filter((item: ErrorData) =>
             errorInfo.keysToSearch.some((key) =>
-              item[key as keyof ErrorData].includes(trimmedSearch)
+              item[key as keyof ErrorData]!.includes(trimmedSearch)
             )
           )
         : query.data
@@ -137,8 +138,8 @@ export default function Home() {
 
     setItems((prev) =>
       [...prev].sort((_a, _b) => {
-        let a: string | number = _a[sortType!];
-        let b: string | number = _b[sortType!];
+        let a: string | number = _a[sortType]!;
+        let b: string | number = _b[sortType]!;
         if (sortType === 'data') {
           if (!(a && b)) return 0;
           a = reverseStringDate(a);
@@ -166,8 +167,8 @@ export default function Home() {
     if (sort !== sortType) return;
     const Icon = sortDir === 'asc' ? ChevronUpIcon : ChevronDownIcon;
     return (
-      <div className="absolute right-3 top-3">
-        <Icon className="size-4" strokeWidth={3} />
+      <div className="flex items-center">
+        <Icon className="size-4 text-foreground" strokeWidth={3} />
       </div>
     );
   }
@@ -186,7 +187,7 @@ export default function Home() {
     <div className="container flex flex-1 flex-col overflow-hidden rounded-b-2xl bg-background-medium">
       {/* tabs */}
       <div className="grid grid-cols-3 bg-background">
-        {Object.entries(errorInfos).map(([key, { label }], i) => (
+        {Object.entries(errorInfos).map(([key, { label }]) => (
           <div
             key={key}
             className={cn(
@@ -194,7 +195,6 @@ export default function Home() {
               {
                 'z-10 border border-b-0 bg-background-medium shadow-none':
                   key === errorKey,
-                'shadow-none': key !== errorKey && i === 2,
               }
             )}
           >
@@ -248,7 +248,9 @@ export default function Home() {
 
           {query.error instanceof Error && (
             <div className="flex-center size-full flex-1">
-              <span className="size-20">Error: {query.error.message}</span>
+              <span className="text-center text-xl">
+                Erro: {query.error.message}
+              </span>
             </div>
           )}
 
@@ -262,22 +264,35 @@ export default function Home() {
                 <TableHeader className="border-b border-background-light/40">
                   <TableRow>
                     <TableHead
-                      className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                      className="w-[140px] cursor-pointer gap-2 pl-8"
                       onClick={() => handleSortItems('data')}
                     >
-                      Data
-                      {getTableHeaderSortIcon('data')}
+                      <div className="flex gap-2">
+                        <span className="text-xl font-semibold text-foreground">
+                          Data
+                        </span>
+                        {getTableHeaderSortIcon('data')}
+                      </div>
                     </TableHead>
                     <TableHead
-                      className="relative w-[140px] cursor-pointer text-center text-xl font-semibold text-foreground"
+                      className="w-[140px] cursor-pointer gap-2"
                       onClick={() => handleSortItems('pedidoId')}
                     >
-                      Pedido
-                      {getTableHeaderSortIcon('pedidoId')}
+                      <div className="flex gap-2">
+                        <span className="text-xl font-semibold text-foreground">
+                          Pedido
+                        </span>
+                        {getTableHeaderSortIcon('pedidoId')}
+                      </div>
                     </TableHead>
-                    <TableHead className="text-center text-xl font-semibold text-foreground">
+                    <TableHead className="text-xl font-semibold text-foreground">
                       Descrição
                     </TableHead>
+                    {errorKey === 'history' && (
+                      <TableHead className="text-xl font-semibold text-foreground">
+                        Observação
+                      </TableHead>
+                    )}
                     {errorKey !== 'history' && (
                       <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
                         Editar
@@ -295,10 +310,10 @@ export default function Home() {
                       })}
                     >
                       {/* date */}
-                      <TableCell align="center">{item.data}</TableCell>
+                      <TableCell className="pl-8">{item.data}</TableCell>
 
                       {/* order id */}
-                      <TableCell align="center">
+                      <TableCell>
                         <div className="flex items-center justify-between gap-1">
                           <span>{item.pedidoId}</span>
                           <Button
@@ -313,7 +328,12 @@ export default function Home() {
                       </TableCell>
 
                       {/* description */}
-                      <TableCell align="center">{item.erro}</TableCell>
+                      <TableCell>{item.erro}</TableCell>
+
+                      {/* comments */}
+                      {errorKey === 'history' && (
+                        <TableCell>{item.obs}</TableCell>
+                      )}
 
                       {/* edit button */}
                       {errorKey !== 'history' && (

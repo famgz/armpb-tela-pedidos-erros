@@ -23,7 +23,7 @@ interface Props {
 }
 
 export default function EditButton({ errorData, onSubmit }: Props) {
-  const [obs, setObs] = useState('');
+  const [obs, setObs] = useState(errorData?.obs || '');
 
   function handleOnSubmit() {
     onSubmit(errorData.pedidoId, updatedErrorStatus, obs);
@@ -37,7 +37,7 @@ export default function EditButton({ errorData, onSubmit }: Props) {
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="max-w-[800px] bg-background-medium p-0">
+      <AlertDialogContent className="max-w-[800px] gap-0 bg-background-medium p-0">
         <AlertDialogHeader className="bg-background p-6">
           <AlertDialogTitle className="flex items-start gap-10 font-normal">
             <AlertDialogDescription className="sr-only">
@@ -45,7 +45,10 @@ export default function EditButton({ errorData, onSubmit }: Props) {
             </AlertDialogDescription>
             <span>{errorData.data}</span>
             <span>{errorData.pedidoId}</span>
-            <span className="line-clamp-2 flex-1 text-center">
+            <span
+              className="line-clamp-2 flex-1 text-center"
+              title={errorData.erro}
+            >
               {errorData.erro}
             </span>
             <AlertDialogCancel className="!-mt-3 -mr-3 size-8 self-start border-none p-1">
@@ -58,13 +61,16 @@ export default function EditButton({ errorData, onSubmit }: Props) {
         </AlertDialogHeader>
 
         <div className="space-y-6 p-6">
-          <Textarea
-            placeholder="Escrever observação..."
-            rows={6}
-            className="bg-background-light text-xl text-foreground placeholder:text-foreground/80"
-            value={obs}
-            onChange={(e) => setObs(e.target.value)}
-          />
+          <div>
+            <h2>Observação</h2>
+            <Textarea
+              placeholder="Escrever observação..."
+              rows={6}
+              className="mt-1 bg-background-light text-xl text-foreground placeholder:font-extralight placeholder:text-foreground/80"
+              value={obs}
+              onChange={(e) => setObs(e.target.value)}
+            />
+          </div>
 
           <AlertDialogFooter className="gap-3">
             <AlertDialogCancel className="px-10 py-3 text-xl">
