@@ -24,7 +24,7 @@ import {
   handleCopyToClipboard,
   reverseStringDate,
 } from '@/lib/utils';
-import EditButton from '@/pages/home/components/edit-button';
+import EditButton from '@/components/edit-button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronDownIcon,

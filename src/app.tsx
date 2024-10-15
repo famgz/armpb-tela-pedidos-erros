@@ -1,5 +1,5 @@
 import Header from '@/components/header';
-import HomePage from '@/pages/home/home';
+import HomePage from '@/pages/home';
 import NotFound from '@/pages/not-found';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
