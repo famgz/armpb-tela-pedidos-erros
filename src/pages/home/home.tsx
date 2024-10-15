@@ -293,11 +293,9 @@ export default function Home() {
                         Observação
                       </TableHead>
                     )}
-                    {errorKey !== 'history' && (
-                      <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
-                        Editar
-                      </TableHead>
-                    )}
+                    <TableHead className="w-[120px] text-center text-xl font-semibold text-foreground">
+                      Editar
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -336,14 +334,12 @@ export default function Home() {
                       )}
 
                       {/* edit button */}
-                      {errorKey !== 'history' && (
-                        <TableCell align="center">
-                          <EditButton
-                            errorData={item}
-                            onSubmit={handleStatusUpdate}
-                          />
-                        </TableCell>
-                      )}
+                      <TableCell align="center">
+                        <EditButton
+                          errorData={item}
+                          onSubmit={handleStatusUpdate}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
